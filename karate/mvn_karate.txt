@@ -1,0 +1,10 @@
+mvn clean test '-Dkarate.env=dev' '-Dkarate.options=--tags ~ignore'
+
+
+mvn clean test '-Dkarate.options=--tags ~ignore' '-DTest=PioneerSuiteParallelTest'
+mvn clean test '-Dkarate.options=--tags ~ignore' '-DTest=PioneerSuiteParallelTest'
+
+mvn clean test -Dkarate.options="--tags @ORCH" -DTest=PioneerSuiteParallelTest
+
+
+mvn clean test -Dkarate.options=--tags @ORCH -DTest=PioneerSuiteParallelTest

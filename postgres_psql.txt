@@ -1,0 +1,27 @@
+psql -h localhost -U postgres -d orchestrator_db -W
+root@03f8604704ae:/# psql -h localhost -U postgres -d orchestrator_db -W
+Password:
+psql (14.0 (Debian 14.0-1.pgdg110+1))
+Type "help" for help.
+
+orchestrator_db-# \conninfo
+You are connected to database "orchestrator_db" as user "postgres" on host "localhost" (address "127.0.0.1") at port "5432".
+
+orchestrator_db-# \d
+                  List of relations
+ Schema |         Name          |   Type   |  Owner
+--------+-----------------------+----------+----------
+ public | aud_project           | table    | postgres
+ public | aud_workspace         | table    | postgres
+ public | databasechangelog     | table    | postgres
+ public | databasechangeloglock | table    | postgres
+ public | hibernate_sequence    | sequence | postgres
+(5 rows)
+
+orchestrator_db-# \q
+
+
+root@03f8604704ae:/# psql -h localhost -U postgres -d orchestrator_db -c 'DROP TABLE IF EXISTS aud_project;'
+DROP TABLE
+root@03f8604704ae:/# psql -h localhost -U postgres -d orchestrator_db -c 'DROP TABLE IF EXISTS aud_workspace;'
+DROP TABLE

@@ -1,0 +1,254 @@
+version: '3.7'
+services:
+    postgres:
+        image: postgres:10.5
+        restart: always
+        environment: 
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
+        logging:
+          options:
+            max-size: 10m
+            max-file: "3"
+        ports:
+          - '5438:5432'
+        volumes:
+          - ./postgres-data:/var/lib/postgresql/data
+          # copy the sql script to create tables
+          - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+          # copy the sql script to fill tables
+          - ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+		  
+
+	 postgres:
+		image: postgres
+		ports:
+		  - "5432:5432"
+		environment:
+		  - POSTGRES_PASSWORD=password
+		  - POSTGRES_USER=postgres
+		  - POSTGRES_DB=postgres
+		healthcheck:
+		  test: ["CMD-SHELL", "pg_isready -U postgres"]
+		  interval: 10s
+		  timeout: 5s
+		  retries: 5		  
+		  
+
+version: '3'
+
+services:
+  postgres:
+    image: postgres:13.1
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - APP_DB_USER=docker
+      - APP_DB_PASS=docker
+      - APP_DB_NAME=docker
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+
+
+
+	db:
+	container_name: db
+	build:
+	  context: ../../
+	  dockerfile: contrib/docker/postgresql/Dockerfile
+	  args:
+		- DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+		- POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+	environment:
+	  - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+	  - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+	  - PGDATA=/var/lib/postgresql/data/db
+	volumes:
+	  - pg_data:/var/lib/postgresql/data
+	healthcheck:
+	  test: ["CMD", "pg_isready", "-U", "ckan"]	  
+	  
+version: "3.8"
+services:
+  db:
+    image: "postgres:13"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=admin2021
+      - POSTGRES_DB=todoapp
+
+docker-compose.yml file
+
+version: "3.8"
+services:
+  db:
+    image: "postgres:13"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=admin2021
+      - POSTGRES_DB=todoapp
+
+Run the container in detached mode
+$ docker-compose up -d
+
+List of running docker containers
+$ docker-compose ps
+
+Run command inside the container
+$ docker-compose run db bash
+
+Connect postgres inside the host
+$ psql  --host=db --username=dbuser --dbname=todoapp
+
+Connect to "postgres" from outside
+$ psql --host=localhost --username=dbuser --dbname=todoapp
+
+stop container
+$ docker-compose down
+
+
+version: '3.5'
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
+    pgadmin:
+
+
+version: "3.7"
+services:
+  postgres:
+    image: debezium/postgres:13
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: "pg_isready -U postgresuser -d shipment_db"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=shipment_db
+      - PGPASSWORD=postgrespw
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
+
+
+version: '3'
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - '5432:5432'
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: email@site.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - '5050:80'
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
+  
+  
+C:\myfiles\Backup\dvdrental
+
+postgres=# CREATE DATABASE dvdrental;
+CREATE DATABASE
+
+
+C:\>cd C:\Program Files\PostgreSQL\12\bin
+pg_restore -U postgres -d dvdrental C:\sampledb\dvdrental.tar
+
+docker-compose exec -T db pg_restore --verbose --clean --no-acl --no-owner -U postgres -d engine < latest.dump
+
+pg_restore -U postgres -d dvdrental dvdrental.tar
+
+wget http://www.postgresqltutorial.com/wp-content/uploads/2017/10/dvdrental.zip
+
+unzip dvdrental.zip
+mv dvdrental.tar postgres-data/
+
+docker-compose exec db bash
+cd var/lib/postgresql/data/
+
+psql -U postgres -c "CREATE DATABASE dvdrental;"
+pg_restore -U postgres -d dvdrental dvdrental.tar
+
+ 

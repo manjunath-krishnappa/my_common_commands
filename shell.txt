@@ -1,0 +1,1 @@
+ping postgres -c 4
